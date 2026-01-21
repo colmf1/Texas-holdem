@@ -7,6 +7,7 @@ This is a C++ translation of the Python Texas Hold'em poker game, designed for l
 - **game.h / game.cpp** - Card, Deck, Player, and TexasHoldemGame classes
 - **evaluator.h / evaluator.cpp** - HandEval class for poker hand evaluation
 - **main.cpp** - Main program entry point
+- **test.cpp** - Test suite for hand evaluation and tiebreakers
 - **CMakeLists.txt** - Build configuration
 - **TRANSLATION_NOTES.md** - Detailed explanation of Python → C++ translations
 
@@ -15,8 +16,13 @@ This is a C++ translation of the Python Texas Hold'em poker game, designed for l
 ### Option 1: Using g++ directly
 ```bash
 cd cpp
+# Build the game
 g++ -std=c++11 main.cpp game.cpp evaluator.cpp -o texas_holdem
 ./texas_holdem
+
+# Build and run tests
+g++ -std=c++11 test.cpp game.cpp evaluator.cpp -o test_holdem
+./test_holdem
 ```
 
 ### Option 2: Using CMake (recommended)
@@ -26,7 +32,8 @@ mkdir build
 cd build
 cmake ..
 make
-./texas_holdem
+./texas_holdem    # Run the game
+./test_holdem     # Run the tests
 ```
 
 ## Requirements
@@ -75,3 +82,32 @@ The C++ version maintains the exact same game logic as the Python version but de
 - C++ standard library vs Python built-ins
 
 Study both versions side-by-side to understand how Python concepts translate to C++!
+
+## Testing
+
+A comprehensive test suite is included in `test.cpp` that covers:
+
+### Hand Rankings
+- Royal Flush, Straight Flush, Four of a Kind
+- Full House, Flush, Straight
+- Three of a Kind, Two Pair, One Pair
+- High Card
+
+### Tiebreakers (Kickers)
+- **Same pair, different kickers** - Critical for determining winners when players have the same hand type
+- **Same two pair** - Tests the 5th card (kicker) determines the winner
+- **Same three of a kind** - Kicker cards break the tie
+- **Different straights** - Higher straight wins
+- **Multiple players** - Tests 3+ player scenarios
+
+### Edge Cases
+- Using best 5 cards from 7 available
+- Board plays (all community cards)
+- Hand ranking comparisons
+
+Run the test suite to verify all poker logic is working correctly:
+```bash
+./test_holdem
+```
+
+All 18 tests should pass! The tests caught and helped fix critical kicker/tiebreaker logic that wasn't working in the original translation.

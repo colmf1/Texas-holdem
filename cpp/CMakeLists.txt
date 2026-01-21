@@ -5,9 +5,16 @@ project(TexasHoldem)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add executable
+# Main game executable
 add_executable(texas_holdem
     main.cpp
+    game.cpp
+    evaluator.cpp
+)
+
+# Test executable
+add_executable(test_holdem
+    test.cpp
     game.cpp
     evaluator.cpp
 )
@@ -17,4 +24,5 @@ add_executable(texas_holdem
 #   mkdir build && cd build
 #   cmake ..
 #   make
-#   ./texas_holdem
+#   ./texas_holdem    # Run the game
+#   ./test_holdem     # Run the tests

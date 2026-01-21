@@ -275,6 +275,17 @@ HandEval::PairResult HandEval::eval_pairs(const std::vector<Card>& all_cards) {
         std::string card_str = convert_to_str(card);
         result.type = 3;
         result.cards.push_back(card);
+        
+        // TRANSLATION NOTE: Include kickers for tiebreaking!
+        // Add the two highest non-trip cards
+        for (int val : numeric_values) {
+            if (val != card && result.cards.size() < 3) {  // trips + 2 kickers = 3 total
+                if (std::find(result.cards.begin(), result.cards.end(), val) == result.cards.end()) {
+                    result.cards.push_back(val);
+                }
+            }
+        }
+        
         result.hand_name = "Three of a Kind " + card_str + "'s";
         return result;
     }
@@ -287,6 +298,16 @@ HandEval::PairResult HandEval::eval_pairs(const std::vector<Card>& all_cards) {
         result.type = 22;
         result.cards.push_back(twos[0]);
         result.cards.push_back(twos[1]);
+        
+        // TRANSLATION NOTE: Include kicker for tiebreaking!
+        // Add the highest non-pair card
+        for (int val : numeric_values) {
+            if (val != twos[0] && val != twos[1]) {
+                result.cards.push_back(val);
+                break;  // Only need one kicker for two pair
+            }
+        }
+        
         result.hand_name = "Two Pair " + card_str_1 + "'s and " + card_str_2 + "'s";
         return result;
     }
@@ -298,6 +319,17 @@ HandEval::PairResult HandEval::eval_pairs(const std::vector<Card>& all_cards) {
         std::string card_str = convert_to_str(card);
         result.type = 2;
         result.cards.push_back(card);
+        
+        // TRANSLATION NOTE: Include kickers for tiebreaking!
+        // Add the highest non-pair cards
+        for (int val : numeric_values) {
+            if (val != card && result.cards.size() < 4) {  // pair + 3 kickers = 4 total
+                if (std::find(result.cards.begin(), result.cards.end(), val) == result.cards.end()) {
+                    result.cards.push_back(val);
+                }
+            }
+        }
+        
         result.hand_name = "Pair of " + card_str + "'s";
         return result;
     }
