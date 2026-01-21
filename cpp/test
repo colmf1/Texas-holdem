@@ -1,0 +1,21 @@
+#!/bin/bash
+# Script to compile, run tests, and clean up
+
+set -e  # Exit on error
+
+echo "Compiling test suite..."
+g++ -std=c++11 -Wall test.cpp game.cpp evaluator.cpp -o test_holdem
+
+echo "Running tests..."
+echo ""
+./test_holdem
+
+# Capture exit code
+TEST_RESULT=$?
+
+echo ""
+echo "Cleaning up..."
+rm -f test_holdem
+
+# Exit with test result
+exit $TEST_RESULT

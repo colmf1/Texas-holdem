@@ -1,0 +1,16 @@
+#!/bin/bash
+# Script to compile, run, and clean up the Texas Hold'em game
+
+set -e  # Exit on error
+
+echo "Compiling Texas Hold'em..."
+g++ -std=c++11 -Wall main.cpp game.cpp evaluator.cpp -o texas_holdem
+
+echo "Starting game..."
+echo "================================"
+./texas_holdem
+
+echo ""
+echo "Cleaning up..."
+rm -f texas_holdem
+echo "Done!"

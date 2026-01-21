@@ -11,9 +11,18 @@ This is a C++ translation of the Python Texas Hold'em poker game, designed for l
 - **CMakeLists.txt** - Build configuration
 - **TRANSLATION_NOTES.md** - Detailed explanation of Python → C++ translations
 
-## Building
+## Building and Running
 
-### Option 1: Using g++ directly
+### Quick Start (Recommended)
+Use the provided scripts that compile, run, and clean up automatically:
+
+```bash
+cd cpp
+./run     # Compile, run the game, then delete binary
+./test    # Compile, run tests, then delete binary
+```
+
+### Option 2: Using g++ directly
 ```bash
 cd cpp
 # Build the game
@@ -25,7 +34,7 @@ g++ -std=c++11 test.cpp game.cpp evaluator.cpp -o test_holdem
 ./test_holdem
 ```
 
-### Option 2: Using CMake (recommended)
+### Option 3: Using CMake
 ```bash
 cd cpp
 mkdir build
