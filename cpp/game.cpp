@@ -7,7 +7,9 @@
 
 // TRANSLATION NOTE: In Python, class variables are defined in the class body.
 // In C++, static members must be defined outside the class (in the .cpp file).
-const std::vector<std::string> Card::SUITS = {"♠", "♥", "♦", "♣"};
+// Note: Using ASCII suits (S, H, D, C) instead of Unicode (♠, ♥, ♦, ♣) to avoid
+// multi-byte UTF-8 character parsing complexity in string manipulation.
+const std::vector<std::string> Card::SUITS = {"S", "H", "D", "C"};
 const std::vector<std::string> Card::RANKS = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
 
 // TRANSLATION NOTE: Python's dict comprehension {rank: i for i, rank in enumerate(RANKS)}

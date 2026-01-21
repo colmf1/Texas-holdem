@@ -623,6 +623,23 @@ std::string good_function() {
 }
 ```
 
+### 7. Unicode/Multi-byte characters
+```cpp
+// Python handles Unicode naturally:
+suit = "♠"  # One character
+value = card_str[:-1]  # Remove last character
+
+// C++ std::string is byte-based, not character-based:
+std::string suit = "♠";  // Actually 3 bytes in UTF-8!
+// substr(0, length-1) cuts into the multi-byte character, causing corruption
+
+// Solution: Use ASCII characters instead:
+const std::vector<std::string> SUITS = {"S", "H", "D", "C"};
+// Or use a Unicode-aware library like ICU or C++20's <codecvt>
+```
+
+**This is why we use ASCII suits (S, H, D, C) instead of Unicode symbols in this code.**
+
 ---
 
 ## Advanced Topics Not Covered
