@@ -157,7 +157,10 @@ int TexasHoldemGame::betting_round(int initial_bet, int button, bool preFlop) {
             
             if (call_amount > 0 && call_amount < player.chips) {
                 bool behaving_badly = true;
+                int tmp;
                 while (behaving_badly) {
+                    std::cout << " \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nReady?" << std::endl;
+                    std::cin  >> tmp; // added these to hide cards from other player
                     std::cout << player.name << ", your hand: " 
                               << player.hand[0].show() << " " << player.hand[1].show() << "\n";
                     
@@ -224,7 +227,10 @@ int TexasHoldemGame::betting_round(int initial_bet, int button, bool preFlop) {
             else {
                 // Can check or raise
                 bool behaving_badly = true;
+                char tmp;
                 while (behaving_badly) {
+                    std::cout << " \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nReady?" << std::endl;
+                    std::cin  >> tmp; // added these to hide cards from other player
                     std::cout << player.name << ", your hand: " 
                               << player.hand[0].show() << " " << player.hand[1].show() << "\n";
                     
