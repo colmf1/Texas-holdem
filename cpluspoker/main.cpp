@@ -27,10 +27,10 @@ std::string card_str(int card_int){
     return rank + " of " + suit;
 }
 
-void print_cards(std::array<int> cards) {
-    for (int card : hand){
-        std::cout << card_str(card) << "\n";
-    }
+void print_cards(std::array<int> cards, int num_cards) {
+    for (int i = 0; i < num_cards, i++){
+         std::cout << card_str(card) << "\n";
+         }
 }
 
 void print_board(std::array<int> table_cards, int game_state) {
@@ -42,22 +42,26 @@ int main() {
     
     // init
     std::array<int, 52> deck;
-    for (int i=0; i<52; i++) deck[i] = i;
+    for (int i=0; i<52; i++) {
+        deck[i] = i;
+    }
+
+    print_cards(deck,52);
     
     // shuffle
     std::mt19937 rng(std::random_device{}());
     std::shuffle(deck.begin(), deck.end(), rng);
     
-    // deal
-    std::array<int, 2> hand1={deck[0],deck[2]};
-    std::array<int, 2> hand2={deck[1],deck[3]};
-    std::array<int, 5> board={deck[4],deck[5],deck[6], deck[7], deck[8]};
-
-
-
+    print_cards(deck,52);
     
-    print_hand(hand1);
-    print_hand(hand2);
+    // deal
+    // We don't need this
+    // Since the cards are shuffled no need to actually simulate the games, 
+    // we can just select cards by the index order on which they'd been dealt
+    // std::array<int, 2> hand1={deck[0],deck[2]};
+    // std::array<int, 2> hand2={deck[1],deck[3]};
+    // std::array<int, 5> board={deck[4],deck[5],deck[6], deck[7], deck[8]};
+    //
 
 
     
