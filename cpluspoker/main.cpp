@@ -17,10 +17,11 @@ struct Player{
 struct Gamestate{
     int pot=0; 
     int round=0;
-    bool allin=0; // If someone goes all in, and the other calls this is triggered
+    bool allin=false; // If someone goes all in, and the other calls this is triggered
     std::array<int, 5> table; 
+    Player player1;
+    Player player2;
 }
-
 
 void place_bet(Player& player,
                Gamestate& game,
@@ -31,11 +32,24 @@ void place_bet(Player& player,
     // game.pot + bet 
 }
 
-void fold(Player& player){
+void fold(Player& player, 
+          Gamestate&game){
     // I think we want to pass in the non folder, and update thier chips, reset pot to 0
 }
 
-// When resetting gamestate I should figure out a smart way to do it
+void call(Player& player,
+          Gamestate& game){
+    // 
+}
+
+void raise(Player& player,
+           Gamestate& game){
+
+}
+
+void show_pot(Gamestate& game)
+
+void show_table(Gamestate& game)
 
 void handle_action(Player& player,
                    Gamestate& game){
@@ -46,23 +60,45 @@ void handle_action(Player& player,
     // All in
 }
 
+void preflop(Player& big,
+             Player& small,
+             Gamestate& game, 
+             ){
+    // small
+    // display cards,
+    // Ask for action
+    // Handle action
+
+    // big - repeat above
+
+    // at any point after this, a check ends the round.
+    // I don't think round can end on a call
+
+
+    // player1 - if action is a
+    
+}
+
 int main() {
-    // create deck
+    // deck
     std::array<int, 52> deck = create_deck();
+    shuffle_deck(deck.begin, deck.end);
+    
+    // players
     Player player1 {0, 5000, 0};
     Player player2 {1, 5000, 0}; 
-    Gamestate game {}
+    
+    Gamestate game();
 
-    shuffle_deck(deck.begin, deck.end);
+    // Post blinds
 
-    // Dealing cards is irrelevent, we know the indexes and can hardcode them
-    // One players BB, other SB, 
-    // BB forced to bet 2 chips
-    // SB forced to bet 1 chip
+    // Preflop round
 
-    // SB sees gamestate gets option to raise call or fold
-    // Gamestate is 2 hole cards no table cards
-    // Also holds bets for both players
+    // Flop
+
+    // Turn
+
+    // River
 
     std::cout << "Player 1's hand:\n";
     print_p1(deck);
