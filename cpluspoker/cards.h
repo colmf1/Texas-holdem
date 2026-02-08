@@ -5,6 +5,7 @@
 #include <array>
 #include <iostream>
 
+
 int get_rank(int card){
     return card >> 2;
 }
@@ -68,7 +69,10 @@ std::array<int, 52> create_deck(){
     return deck;
 }
 
-
+void shuffle_deck(int begin, int end){
+    std::mt19937 rng(std::random_device{}());
+    std::shuffle(begin, end, rng);
+}
 
 
 #endif
