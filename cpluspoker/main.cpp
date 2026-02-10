@@ -8,6 +8,12 @@
 // These are easily passed into bot
 // Write functions to take Player and gamestate, nothing else is needed
 
+// I should fix my types to minimise size
+// Cards are max 51, can fit into 8 bits
+// inline uintu_t
+// I should make enums for my cards and ranks
+// Less to handle but no performance loss
+
 struct Player{
     int id, chips, current_bet;
     std::array<int,2> hand;
@@ -63,8 +69,40 @@ void show_table(Gamestate& game)
 
 void handle_action(Player& player,
                    Gamestate& game){
-    ""
+    int action;
+    std::cout << "Enter your action \n";
+    // Actions 1. Call/Check (bet=0 << action)
+    //         2. Raise (bet=bet, << action)
+
+    if (player.current_bet == (game.pot / 2)){
+        switch(action) {
+            case 1:
+                // check - do nothing 
+                break;
+            case 2:
+                // Raise
+                // I think I store my actions better
+                // Should I store them bitwise?
+                // XX YY - YY is action, 1,2,3, 
+                // XX is bet, 
+                int bet;
+                place_bet(player, game, bet)
+                break;
+
+
+        }
+        if (action == 1){
+            // check is do nothing?
+        }
+        
+
+        // check
+        // raise
+        // fold?? Why would anyone fold
+        
+    }
     // Asks for user input + runs appropriate function
+    // User input depends on whether the other opponent has called
     // Call
     // Fold
     // Raise - need to limit this to N big blinds
