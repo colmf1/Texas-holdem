@@ -4,7 +4,6 @@
 #include <algorithm>
 #include "cards.h"
 
-
 // This is my new structure, Player and gamestate structs handle everything
 // These are easily passed into bot
 // Write functions to take Player and gamestate, nothing else is needed
@@ -17,34 +16,45 @@ struct Player{
 struct Gamestate{
     int pot=0; 
     int round=0;
+    // Maybe this should be a class
+    int SBlind=1;
+    int BBlind=2;
     bool allin=false; // If someone goes all in, and the other calls this is triggered
     std::array<int, 5> table; 
     Player player1;
     Player player2;
 }
+// Lets pretend player isn't in this class
 
 void place_bet(Player& player,
                Gamestate& game,
-               int bet){
-    // Check if bet > chips
-    // Check if bet > 0
-    // player.chips - bet
-    // game.pot + bet 
+               int bet;){
+    player.chips -= bet;
+    player.current_bet += bet;
+    game.pot += bet;
+    // This must eventually be limited by the other persons chips - can't put them 
 }
 
-void fold(Player& player, 
-          Gamestate&game){
-    // I think we want to pass in the non folder, and update thier chips, reset pot to 0
+void end_round(Player& folder,
+               Player& winner, 
+               Gamestate& game){
+    // set_round = n
+    // clear both bets
+    winner.chips += game.pot;
+    
+    game.pot = 0;
+    winner.current_bet=0;
+    folder.current_bet=0;
 }
 
 void call(Player& player,
           Gamestate& game){
-    // 
+    place_bet(player, gamestate, (player.current_bet-(game.pot / 2)));
 }
 
 void raise(Player& player,
            Gamestate& game){
-
+    // call and raise are redundant with place bet, do it in handle action.
 }
 
 void show_pot(Gamestate& game)
@@ -53,6 +63,7 @@ void show_table(Gamestate& game)
 
 void handle_action(Player& player,
                    Gamestate& game){
+    ""
     // Asks for user input + runs appropriate function
     // Call
     // Fold
