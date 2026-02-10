@@ -5,15 +5,23 @@
 #include <array>
 #include <iostream>
 
-
-int get_rank(int card){
-    return card >> 2;
+// I should have a way of going from 0-51 straight to rank and suit
+// Instead of encoding cards, data should flow around as int
+int get_rank(int& card){
+    return return card/4;
 }
 
-int get_suit(int card){
+int get_suit(int& card){
     return card & 0b11;
 }
 
+std::array<int, 52> create_deck(){
+    std::array<int, 52> deck;
+    for (int i = 0; i<52; i++){
+        deck[i] = i;
+    }
+    return deck;
+}
 
 std::string card_str(int card_int){
     std::array<std::string, 4>  suits ={
@@ -28,7 +36,6 @@ std::string card_str(int card_int){
     suit = suits[get_suit(card_int)];
     return rank + " of " + suit;
 }
-
 void print_card(const std::array<int, 52>& deck, int index){
     std::cout << card_str(deck[index]) << "\n";
 }
@@ -57,16 +64,6 @@ void print_p1(const std::array<int, 52>& deck){
 void print_p2(const std::array<int, 52>& deck){
     print_card(deck, 1);
     print_card(deck, 3);
-}
-
-std::array<int, 52> create_deck(){
-    std::array<int, 52> deck;
-    for (int i=0; i<52; i++){
-        int rank = i/4;
-        int suit = i%4;
-        deck[i] = (rank << 2) | suit;
-    }
-    return deck;
 }
 
 void shuffle_deck(int begin, int end){

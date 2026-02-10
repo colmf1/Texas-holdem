@@ -4,33 +4,44 @@
 #include <algorithm>
 #include "cards.h"
 
-// This is my new structure, Player and gamestate structs handle everything
-// These are easily passed into bot
-// Write functions to take Player and gamestate, nothing else is needed
-
-// I should fix my types to minimise size
-// Cards are max 51, can fit into 8 bits
-// inline uintu_t
-// I should make enums for my cards and ranks
-// Less to handle but no performance loss
+// changed mind again,
+// cache locallity means store all in gamestate
+// I need to carry history through 
+// optimal way is as a hash table 
+// I need to store history bitwise
+// All actions gonna be bitwise
+// limit raise options to a halfpot,pot and all in
+// 
 
 struct Player{
     int id, chips, current_bet;
     std::array<int,2> hand;
 };
 
+struct InfoSetKey {
+    uint32_t history;
+    uint8_t hole0;
+    uint8_t hole1;
+    uint8_t board0; // maybe bucketed
+    uint8_t board1;
+    uint8_t board2;
+    uint8_t board3;
+    uint8_t board4;
+};
+
 struct Gamestate{
-    int pot=0; 
-    int round=0;
-    // Maybe this should be a class
-    int SBlind=1;
-    int BBlind=2;
-    bool allin=false; // If someone goes all in, and the other calls this is triggered
-    std::array<int, 5> table; 
-    Player player1;
-    Player player2;
+    // Think i've finally arrived on this.
+    std::array<int, 52> deck;
+    int hand[2][2];
+    int table[5];
+    
+    int pot;
+    int round;
+    int chips[2];
+    
+    int act; // Whos go just varies 0-1 
+    uint32_t history; // This needs hardcoded to do bit stuff
 }
-// Lets pretend player isn't in this class
 
 void place_bet(Player& player,
                Gamestate& game,
@@ -61,6 +72,7 @@ void call(Player& player,
 void raise(Player& player,
            Gamestate& game){
     // call and raise are redundant with place bet, do it in handle action.
+    
 }
 
 void show_pot(Gamestate& game)
@@ -69,6 +81,7 @@ void show_table(Gamestate& game)
 
 void handle_action(Player& player,
                    Gamestate& game){
+
     int action;
     std::cout << "Enter your action \n";
     // Actions 1. Call/Check (bet=0 << action)
