@@ -2,176 +2,125 @@
 #include <array>
 #include <random>
 #include <algorithm>
-#include "cards.h"
 
-// changed mind again,
-// cache locallity means store all in gamestate
-// I need to carry history through 
-// optimal way is as a hash table 
-// I need to store history bitwise
-// All actions gonna be bitwise
-// limit raise options to a halfpot,pot and all in
-// 
-
-struct Player{
-    int id, chips, current_bet;
-    std::array<int,2> hand;
-};
-
-struct InfoSetKey {
-    uint32_t history;
-    uint8_t hole0;
-    uint8_t hole1;
-    uint8_t board0; // maybe bucketed
-    uint8_t board1;
-    uint8_t board2;
-    uint8_t board3;
-    uint8_t board4;
-};
+// Don't pass in pointers - pass in the actual gamestate 
+// Pointers are low memory, but cause bouncing about in memory
+// If we minimise the size of our gamestate we can just copy
+// Asked claude about cache locallity - keeping the deck will
+// just pollute the cache anyway - keep it separate, we only use it to deal cards
+//
+// struct Gamestate{    
+//     // Deck is just 52 number array
+//
+//     // hands stored together as a matrix
+//     // p0=hand[0][0:1]
+//     int hand[2][2];
+//     int table[5];
+//
+//     int pot, round;
+//     int chips[2];
+//     int bets[2];
+//
+//     bool p0;
+//     uint32_t history; // This needs to be 32 bit encoded for bit stuff
+//     // history gonna be the focus of this
+//     // we need to track the actions for as far back as possible
+//     // minimise memory usage
+//     //
+// };
+//
 
 struct Gamestate{
-    // Think i've finally arrived on this.
-    std::array<int, 52> deck;
     int hand[2][2];
     int table[5];
-    
-    int pot;
-    int round;
+    int pot, round;
     int chips[2];
-    
-    int act; // Whos go just varies 0-1 
-    uint32_t history; // This needs hardcoded to do bit stuff
+    int bets[2];
+    bool p0; // p0 true/false - to track current player
+    uint32_t history; 
+};
+
+void change_player(Gamestate& game){
+    game.p0 = !game.p0;
 }
 
-void place_bet(Player& player,
-               Gamestate& game,
-               int bet;){
-    player.chips -= bet;
-    player.current_bet += bet;
-    game.pot += bet;
-    // This must eventually be limited by the other persons chips - can't put them 
-}
-
-void end_round(Player& folder,
-               Player& winner, 
-               Gamestate& game){
-    // set_round = n
-    // clear both bets
-    winner.chips += game.pot;
-    
+void init_gs(Gamestate& game){
     game.pot = 0;
-    winner.current_bet=0;
-    folder.current_bet=0;
+    game.round = 0;
+    game.p0 = false;
 }
 
-void call(Player& player,
-          Gamestate& game){
-    place_bet(player, gamestate, (player.current_bet-(game.pot / 2)));
-}
-
-void raise(Player& player,
-           Gamestate& game){
-    // call and raise are redundant with place bet, do it in handle action.
-    
-}
-
-void show_pot(Gamestate& game)
-
-void show_table(Gamestate& game)
-
-void handle_action(Player& player,
-                   Gamestate& game){
-
-    int action;
-    std::cout << "Enter your action \n";
-    // Actions 1. Call/Check (bet=0 << action)
-    //         2. Raise (bet=bet, << action)
-
-    if (player.current_bet == (game.pot / 2)){
-        switch(action) {
-            case 1:
-                // check - do nothing 
-                break;
-            case 2:
-                // Raise
-                // I think I store my actions better
-                // Should I store them bitwise?
-                // XX YY - YY is action, 1,2,3, 
-                // XX is bet, 
-                int bet;
-                place_bet(player, game, bet)
-                break;
-
-
-        }
-        if (action == 1){
-            // check is do nothing?
-        }
-        
-
-        // check
-        // raise
-        // fold?? Why would anyone fold
-        
+std::array<int, 52> create_deck(){
+    std::array<int, 52> deck;
+    for (int i = 0; i<52; i++){
+        deck[i] = i;
     }
-    // Asks for user input + runs appropriate function
-    // User input depends on whether the other opponent has called
-    // Call
-    // Fold
-    // Raise - need to limit this to N big blinds
-    // All in
+    return deck;
 }
 
-void preflop(Player& big,
-             Player& small,
-             Gamestate& game, 
-             ){
-    // small
-    // display cards,
-    // Ask for action
-    // Handle action
+void shuffle_deck(std::array<int,52>& deck);
+    std::mt19937 rng(std::random_device{}());
+    std::shuffle(deck.begin(), deck.end(), rng);
+}
 
-    // big - repeat above
+void deal_cards(Gamestate& game, std::array<int,52>& deck){
+    shuffle_deck(deck);
+    // hands
+    game.hand[0][0] = deck[0];
+    game.hand[1][0] = deck[1];
+    game.hand[0][1] = deck[2];
+    game.hand[1][1] = deck[3];
+    // flop-turn-river
+    game.table[0] = deck[4];
+    game.table[1] = deck[5];
+    game.table[2] = deck[6];
+    game.table[3] = deck[7];
+    game.table[4] = deck[8];
+}
 
-    // at any point after this, a check ends the round.
-    // I don't think round can end on a call
-
-
-    // player1 - if action is a
-    
+void card_str(int card){
+    std::array<std::string, 4>  suits ={
+        "Spades", "Clubs", "Hearts", "Diamonds"
+    };
+    std::array<std::string, 13> ranks = {
+        "2","3","4","5","6","7","8","9", "10", "Jack", "Queen", "King", "Ace"
+    };
+    std::cout << ranks[card/4] << " of " << suits[card/12] << "\n";
 }
 
 int main() {
-    // deck
+    // init
+    Gamestate game;
     std::array<int, 52> deck = create_deck();
-    shuffle_deck(deck.begin, deck.end);
-    
-    // players
-    Player player1 {0, 5000, 0};
-    Player player2 {1, 5000, 0}; 
-    
-    Gamestate game();
+    game.chips[0] = 5000;
+    game.chips[1] = 5000;
 
-    // Post blinds
+    while (true){
+        // only break after run out of chips.
+        // give a quit option with the other actions for now 
+        init_gs(game);
+        deal_cards(game, deck);
+        //blinds 
+        game.bets[game.p0]  = 1;
+        game.bets[!game.p0] = 2;
 
-    // Preflop round
+        // preflop
 
-    // Flop
+        std::cout << "Bets - 0:" << game.bets[game.p0] << ",1:" << game.bets[game.p0] << "\n";
+        std::cout << "Hand\n";
+        card_str(game.hand[0][0]); 
+        card_str(game.hand[0][1]);
+        std::cout << "\n";
 
-    // Turn
 
-    // River
-
-    std::cout << "Player 1's hand:\n";
-    print_p1(deck);
-    std::cout << "\nPlayer 2's hand:\n";
-    print_p2(deck);
-    std::cout << "\nFlop:\n";
-    print_flop(deck);
-    std::cout << "\nTurn:\n";
-    print_turn(deck);
-    std::cout << "\nRiver:\n";
-    print_river(deck);
-
-    return 0;
+        
+        // Ask for input 
+        // Check if it's a fold or call round 
+        // Make a map of inputs to actions - do it later
+        int action;
+        std::cout << "0:fold \n1:call \n2:raisehalf \n3:raisepot \n4:Allin\n"; 
+        std::cin >> action;
+        std::cout << "Action was " << action << "\n";
+        return 0;
+        } 
 }
