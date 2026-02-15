@@ -25,12 +25,6 @@ template <typename... Args> void print(Args &&...args) {
   std::cout << '\n';
 }
 
-// Instead of
-// std::array<int, 2> hand;
-// Now I can use like below
-// arr<2> hand;
-// needa be
-
 // Cards
 arr<3> create_deck() {
   arr<3> deck;
@@ -47,20 +41,32 @@ void shuffle_deck(arr<3> &deck) {
 
 struct Gamestate {
   arr<2> card;
-  bool player;
+  int player;
+  arr<2> action;
   int round;
   arr<4> history;
 };
 
-// Pass - history << 1
-// Bet - (history << 1) | 1
-// infoset_id = card * 1000 + history;
+// I need to enumerate every single info state
 
-// Get action
-// Show prev action
-// Jack - p0 passed
-// 0 - pass, 1 - bet
+// All possible infostates for both players
+// p0
+// Initial - 0 + (0, 1, 2)
+// After pass 3 + (0,1, 2)
+// After bet 6 + (0,1,2)
+
+// p1
+// Initial - 9 + (0, 1, 2)
+// After pass 12 + (0,1, 2)
+// After bet 15 + (0,1,2)
+
+// From this 2 possible actions always.
 //
+
+// history +=
+
+// load of other combos? Do I needa mad for loop r smt
+// need to make unique ints
 
 int get_action() {
   // I need to know prev actions to do this
