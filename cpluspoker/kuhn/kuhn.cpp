@@ -3,6 +3,16 @@
 #include <iostream>
 #include <random>
 
+// Whoops idk 3 card poker lol
+// My betting round is wrong
+// action are
+
+// Pass-Pass: Showdown, high card wins
+// Pass-Bet-Call: Showdown, high card wins
+// Pass-Bet-Fold: Bettor wins pot
+// Bet-Call: Showdown, high card wins
+// Bet-Fold: Bettor wins pot
+
 // Helper funcs
 template <std::size_t N> using arr = std::array<int, N>;
 template <typename... Args> void print(Args &&...args) {
@@ -26,8 +36,8 @@ void shuffle_deck(arr<3> &deck) {
 
 struct Gamestate {
   arr<2> card;
-  int player;
-  int action;
+  int player = 0;
+  int action = 0;
 };
 
 int get_action() {
@@ -43,53 +53,78 @@ int showdown(Gamestate &game) {
   return game.card[0] < game.card[1];
 }
 
-// I need to make a bunch of maps eg
-// I think I calculate EV once, and multiply by -1 for p1
-// Idk why I'm storing these as arrays, one int is good since only 1 decision
-// Look at everything as probability to bet
-// apart from move 1 pass ends game with ev=0 anyway
-
+// Example
 // Infostate: 5(pK),
-// Strategy:0.5, Terminal: 0, Payout=X
-// Need to work out expected payout from betting
-// Non terminal actions result in an opponent move
+// Strategy:0.5, Terminal:[1,0], EV = [0,X]
+// X=Average EV of all subtrees after bet
 
 // opponent moves,
-// Infostate: 9 + 6 + (0/1) = 15/16
-// Strategy = .5, Terminal = 1, EV = 1
-// X = Strategy*EV[1]
+// Infostate: (player)9 + (action=bet)6 + (0/1) = 15/16
+// 15. Strategy = .5, Terminal = 1, EV = [1,1]
+// 16. Strategy = .5, Terminal = 1, EV = [1,1]
+// X = Strategy*EV
+//   = ((0.5*1 + 0.5*1) + (0.5*1 + 0.5*1) / 2)
+//   = 1
 
 // Update infostate
-// Current EV = 0.5*0.5=0.25
-// Next step is to calculate regret
-//
+// Bet always wins with this hand
+// Current EV = 0.5
+// EV always bet = 1
+// EV always pass = 0
+// Regret_bet  = EV of always betting - EV current strategy
+//             = 1 - 0.5= 0.5
+// Regret_pass = 0
+// Cum_Regret = [max(0,0), max(0,0.5)] - Need to only take positive regrets,
+// this added to sum every visit
+//            = [0, 0.5] - Keeps compounding every round, not for these cards
+//            but could be both pos
+// Normalise
+// total regret = 0.5+0 = 0.5 - sum cumulative regrets from both sides
+// Strategy = Strategy / total regret
+// Update strategy all at once I think
+
+// So the worst part is I don't think I need poker
+// I just need a way of traversing the tree :/
+
+// I just need to start at root,
+// Traverse tree
+// Calculate EV at bottom
+// Bubble back up
+
+// Infostate is what the Bot will see
+// Number between 0-18 - 3cards*3actions*2players (1st or second)
+
+// I'm imagining that these will be nodes on our cfr
+// Each infostate will have an associated float array strategy
+// eg. [0.2, 0.8] = [P(pass), P(bet)]
+// We initialise everything at [.5, .5]
+// We make our decision
+// We then calculate regret??
+// Idk how that works
+// Will need to calculate it every round
 
 int play_round(Gamestate &game) {
+  int infostate =
+      (9 * game.player) + 3 * (game.action + 1) + game.card[game.player];
 
-  // Infostate is what the Bot will see
-  // Number between 0-18 - 3cards*3actions*2players (1st or second)
-
-  // I'm imagining that these will be nodes on our cfr
-  // Each infostate will have an associated float array strategy
-  // eg. [0.2, 0.8] = [P(pass), P(bet)]
-  // We initialise everything at [.5, .5]
-  // We make our decision
-  // We then calculate regret??
-  // Idk how that works
-  // Will need to calculate it every round
-
-  int infostate = (9 * game.player) + game.action + game.card[game.player];
+  // Players both ante 1 chip at start
+  // 0 bet/pass - nothing return 1
+  // pass pass - showdown for 2 chips
+  // bet bet - showdown for 4 chips
+  // bet pass- p1 wins 2 chips
+  //
 
   print("Infostate", infostate);
   print("Pass(0) or Bet(1)");
-  // Get action will be replaced with bot action
   int action = get_action();
 
-  // Terminal nodes are ones which return 0 - this is where we calculate regret.
-  // They're then recursivly summed.
+  //
+
+  // Bet bet showdown for 4
 
   // unless its r0 - passing will end the round with no winner
-  if (!(game.action == 0) and (action == 3)) {
+  if (!(game.action == 0) and (action == 0)) {
+    // pass pass -
     print("Passed - ended round");
     // payoff = 0
     return 0;
