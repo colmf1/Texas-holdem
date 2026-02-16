@@ -43,6 +43,27 @@ int showdown(Gamestate &game) {
   return game.card[0] < game.card[1];
 }
 
+// I need to make a bunch of maps eg
+// I think I calculate EV once, and multiply by -1 for p1
+// Idk why I'm storing these as arrays, one int is good since only 1 decision
+// Look at everything as probability to bet
+// apart from move 1 pass ends game with ev=0 anyway
+
+// Infostate: 5(pK),
+// Strategy:0.5, Terminal: 0, Payout=X
+// Need to work out expected payout from betting
+// Non terminal actions result in an opponent move
+
+// opponent moves,
+// Infostate: 9 + 6 + (0/1) = 15/16
+// Strategy = .5, Terminal = 1, EV = 1
+// X = Strategy*EV[1]
+
+// Update infostate
+// Current EV = 0.5*0.5=0.25
+// Next step is to calculate regret
+//
+
 int play_round(Gamestate &game) {
 
   // Infostate is what the Bot will see
@@ -64,14 +85,20 @@ int play_round(Gamestate &game) {
   // Get action will be replaced with bot action
   int action = get_action();
 
+  // Terminal nodes are ones which return 0 - this is where we calculate regret.
+  // They're then recursivly summed.
+
   // unless its r0 - passing will end the round with no winner
   if (!(game.action == 0) and (action == 3)) {
     print("Passed - ended round");
+    // payoff = 0
     return 0;
   }
 
   // double bets have a showdown
   if (game.action == 6 and action == 6) {
+    // Win  payoff = 1
+    // Lose payoff = -1
     int winner = showdown(game);
     print("Winner", winner);
     // I'll needa to some regret maxing here I assume
