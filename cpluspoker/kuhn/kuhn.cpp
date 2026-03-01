@@ -1,6 +1,7 @@
 
 #include <algorithm>
 #include <array>
+#include <iostream>
 
 using float2 = std::array<float, 2>;
 // Tree design
@@ -137,22 +138,44 @@ float cfr(int c0, int c1, int actions, float2 reach) {
 
   // Opponents reach prob
   int player = get_player(actions);
-  update_regret(node, ev, reach[!get_player(actions)], ev_pass, ev_bet, player);
+  update_regret(node, ev, reach[!player], ev_pass, ev_bet, player);
   // players reach prob
-  update_strategy_sum(node, strategy, reach[get_player(actions)]);
-
+  update_strategy_sum(node, strategy, reach[player]);
   return ev;
 }
 
+void print_strategies() {
+  // 8-9 continue
+  for (int action = 1; action < 12; action++) {
+    // These are missing histories
+    if (action == 8 || action == 9) {
+      continue;
+    }
+
+    for (int card = 0; card < 3; card++) {
+      Node node = get_node(card, card, action);
+      float strategy = get_strategy(node);
+      std::cout << "A:" << action << " C:" << card
+                << " S:" << std::to_string(strategy) << "\n";
+    }
+  }
+}
+
 int main() {
-  for (int c0 = 0; c0 < 3; c0++) {
-    for (int c1 = 0; c1 < 3; c1++) {
-      if (c0 == c1) {
-        continue;
+  for (int i = 0; i < 10000; i++) {
+    for (int c0 = 0; c0 < 3; c0++) {
+      for (int c1 = 0; c1 < 3; c1++) {
+        if ((i % 10000) == 0) {
+          std::cout << "iteration: " << i << "\n";
+          print_strategies();
+        }
+        if (c0 == c1) {
+          continue;
+        }
+        int actions = 1;
+        float2 reach = {1.0, 1.0};
+        (void)cfr(c0, c1, actions, reach);
       }
-      int actions = 1;
-      float2 reach = {1.0, 1.0};
-      (void)cfr(c0, c1, actions, reach);
     }
   }
   return 0;
