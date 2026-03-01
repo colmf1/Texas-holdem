@@ -1,15 +1,25 @@
 
 #include <algorithm>
+#include <array>
 
-// -- TODO ---------------
-
-// Regret matching
-// Reach probabilities
-// strategy sum
-
+using float2 = std::array<float, 2>;
 // Tree design
+// Based on these funcs
 
-// Possible histories
+// Node &get_node(int c0, int c1, int actions) {
+//   // p1
+//   if (actions == 2 || actions == 3) {
+//     return nodeTable[(c1 << 4) | actions];
+//   }
+//   // p2
+//   return nodeTable[(c0 << 4) | actions];
+// }
+//
+// int update_actions(int actions, int action) { return (actions << 1 | action);
+// }
+//
+
+// Possible action histories
 // p0
 // nothing=1
 //
@@ -33,34 +43,29 @@
 // Node in binary of having pbb with a king = 10|1011=101011 = 43
 
 struct Node {
-  float regret[2] = {0.f, 0.f};
-  float strategy_sum[2] = {0.f, 0.f};
+  float2 regret = {0.f, 0.f};
+  float2 strategy_sum = {0.f, 0.f};
 };
 
 // I think 43 would be fine but dont trust my brain
 Node nodeTable[48];
 
-Node &get_node(int c0, int c1, int history) {
+Node &get_node(int c0, int c1, int actions) {
   // p1
-  if (history == 2 || history == 3) {
-    return nodeTable[(c1 << 4) | history];
+  if (actions == 2 || actions == 3) {
+    return nodeTable[(c1 << 4) | actions];
   }
   // p2
-  return nodeTable[(c0 << 4) | history];
+  return nodeTable[(c0 << 4) | actions];
 }
 
-int get_history(int index) {
-  // 1111 - masks 4 bits
-  return index & 0xF;
-}
+int update_actions(int actions, int action) { return (actions << 1 | action); }
 
-int get_card(int index) { return index >> 4; }
+int flip_sign(int cond) { return 1 - (2 * cond); }
 
-int update_history(int history, int action) { return (history << 1 | action); }
-
-int showdown(int &c0, int &c1, int &history) {
-  int mult = 1 - (2 * (c0 < c1));
-  if (history == 4) {
+int showdown(int &c0, int &c1, int &actions) {
+  int mult = flip_sign(c0 < c1);
+  if (actions == 4) {
     return mult * 1;
   }
   return mult * 2;
@@ -78,82 +83,77 @@ float get_strategy(Node &node) {
   return std::max(node.regret[0], 0.f) / total_regret;
 }
 
-float ev_node(Node &node, float ev_pass, float ev_bet) {
-  float strategy = get_strategy(node);
+float ev_node(float strategy, float ev_pass, float ev_bet) {
   return (1 - strategy) * ev_pass + strategy * ev_bet;
 }
 
-void update_strategy_sum(Node &node, float reach_prob) {
-  float strategy = get_strategy(node);
+void update_strategy_sum(Node &node, float strategy, float reach_prob) {
   node.strategy_sum[0] += reach_prob * (1 - strategy);
   node.strategy_sum[1] += reach_prob * strategy;
 }
 
-// include reach prob
-void update_regret(Node &node, float reach_prob, float ev_pass, float ev_bet) {
-  // opponents reach prob
-  float ev = ev_node(node, ev_pass, ev_bet);
-  node.regret[0] += reach_prob * (ev_pass - ev);
-  node.regret[1] += reach_prob * (ev_bet - ev);
+void update_regret(Node &node, float ev, float reach_prob, float ev_pass,
+                   float ev_bet, int player) {
+  int sign = flip_sign(player);
+  node.regret[0] += reach_prob * sign * (ev_pass - ev);
+  node.regret[1] += reach_prob * sign * (ev_bet - ev);
 }
 
-float cfr(int &c0, int &c1, int history, float r0, float r1) {
-  // Terminal Nodes --
+int get_player(int actions) { return (actions == 2 || actions == 3); }
+
+float2 update_reach(int actions, float strategy, float2 reach) {
+  reach[get_player(actions)] *= strategy;
+  return reach;
+}
+
+float cfr(int c0, int c1, int actions, float2 reach) {
+  // Terminal Nodes -------------
+
   // Showdown
-  if (history == 4 || history == 7 || history == 11) {
-    return showdown(c0, c1, history);
+  if (actions == 4 || actions == 7 || actions == 11) {
+    return showdown(c0, c1, actions);
   }
   // Fold
-  if (history == 6 || history == 10) {
-    return (history == 6) ? 1 : -1;
+  if (actions == 6 || actions == 10) {
+    return (actions == 6) ? 1 : -1;
   }
 
-  Node &node = get_node(c0, c1, history);
+  // All other Nodes --------------
+  Node &node = get_node(c0, c1, actions);
+  float strategy = get_strategy(node);
 
-  // float ev_pass =
-  //     cfr(c0, c1, update_history(history, 0), reach * node.strategy[0]);
-  // float ev_bet =
-  //     cfr(c0, c1, update_history(history, 1), reach * node.strategy[1]);
-  //
-  // update_regret(node, ev_pass, ev_bet);
-  // update strategy
-  // Need to track more things
+  int actp, actb;
+  float2 rp, rb;
 
-  // return ev_node(node, ev_pass, ev_bet);
+  actp = update_actions(actions, 0);
+  actb = update_actions(actions, 1);
+
+  rp = update_reach(actions, (1 - strategy), reach);
+  rb = update_reach(actions, strategy, reach);
+
+  float ev_pass = cfr(c0, c1, actp, rp);
+  float ev_bet = cfr(c0, c1, actb, rb);
+  float ev = ev_node(strategy, ev_pass, ev_bet);
+
+  // Opponents reach prob
+  int player = get_player(actions);
+  update_regret(node, ev, reach[!get_player(actions)], ev_pass, ev_bet, player);
+  // players reach prob
+  update_strategy_sum(node, strategy, reach[get_player(actions)]);
+
+  return ev;
 }
 
-// cfr(terminal) → returns +1.0
-//     ↑
-// cfr(node, P1 to act) → gets +1.0 from call branch, -1.0 from fold branch
-//                       → computes weighted average, returns say +0.3
-//                       → also updates regrets using those two values
-//     ↑
-// cfr(node, P0 to act) → gets +0.3 from bet branch, +0.1 from check branch
-//                       → computes weighted average, returns say +0.2
-//                       → also updates regrets using those two values
-//     ↑
-// main() → receives the EV of the whole deal
-//
-
 int main() {
-  Node node;
   for (int c0 = 0; c0 < 3; c0++) {
     for (int c1 = 0; c1 < 3; c1++) {
       if (c0 == c1) {
         continue;
       }
-      int history = 1;
-      float ev_bet, ev_pass;
-      node = get_node(c0, c1, history);
-
-      ev_bet = cfr(c0, c1, update_history(history, 0), node.strategy[0]);
-      ev_pass = cfr(c0, c1, update_history(history, 1), node.strategy[1]);
-      update_regret(node, ev_pass, ev_bet);
-      // Use ev node to calculate regret
-      // This is done within the function for everyone else
-      //
+      int actions = 1;
+      float2 reach = {1.0, 1.0};
+      (void)cfr(c0, c1, actions, reach);
     }
   }
-
   return 0;
 }
