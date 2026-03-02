@@ -1,55 +1,16 @@
-
 #include <algorithm>
 #include <array>
 #include <iostream>
 
 using float2 = std::array<float, 2>;
-// Tree design
-// Based on these funcs
-
-// Node &get_node(int c0, int c1, int actions) {
-//   // p1
-//   if (actions == 2 || actions == 3) {
-//     return nodeTable[(c1 << 4) | actions];
-//   }
-//   // p2
-//   return nodeTable[(c0 << 4) | actions];
-// }
-//
-// int update_actions(int actions, int action) { return (actions << 1 | action);
-// }
-//
-
-// Possible action histories
-// p0
-// nothing=1
-//
-// p1
-// p=2, b=3
-//
-// p0
-// pp=4 terminal node
-// pb=5
-//
-// p1 (not really)
-// bp=6, bb=7 - both terminal
-//
-// pbp=10 - terminal(1)
-// pbb=11 - terminal(2)
-
-// possible cards, 0,1,2
-// Largest history is 11
-// 11 in binary = 1011
-// 2 in binary = 10
-// Node in binary of having pbb with a king = 10|1011=101011 = 43
 
 struct Node {
   float2 regret = {0.f, 0.f};
   float2 strategy_sum = {0.f, 0.f};
 };
 
-// I think 43 would be fine but dont trust my brain
-Node nodeTable[48];
+// 43 is max index
+Node nodeTable[43];
 
 Node &get_node(int c0, int c1, int actions) {
   // p1
@@ -62,11 +23,13 @@ Node &get_node(int c0, int c1, int actions) {
 
 int update_actions(int actions, int action) { return (actions << 1 | action); }
 
+// This gets used for ev multiplier in multiple locations
+// [0,1] -> [1,-1]
 int flip_sign(int cond) { return 1 - (2 * cond); }
 
 int showdown(int &c0, int &c1, int &actions) {
   int mult = flip_sign(c0 < c1);
-  if (actions == 4) {
+  if (actions == 4) { // PP
     return mult * 1;
   }
   return mult * 2;
@@ -81,7 +44,8 @@ float get_strategy(Node &node) {
   if (total_regret <= 0) {
     return 0.5f;
   }
-  return std::max(node.regret[0], 0.f) / total_regret;
+  // Strategy is Pbet
+  return std::max(node.regret[1], 0.f) / total_regret;
 }
 
 float ev_node(float strategy, float ev_pass, float ev_bet) {
@@ -109,7 +73,6 @@ float2 update_reach(int actions, float strategy, float2 reach) {
 
 float cfr(int c0, int c1, int actions, float2 reach) {
   // Terminal Nodes -------------
-
   // Showdown
   if (actions == 4 || actions == 7 || actions == 11) {
     return showdown(c0, c1, actions);
@@ -123,52 +86,45 @@ float cfr(int c0, int c1, int actions, float2 reach) {
   Node &node = get_node(c0, c1, actions);
   float strategy = get_strategy(node);
 
-  int actp, actb;
-  float2 rp, rb;
+  int actp = update_actions(actions, 0);
+  int actb = update_actions(actions, 1);
 
-  actp = update_actions(actions, 0);
-  actb = update_actions(actions, 1);
-
-  rp = update_reach(actions, (1 - strategy), reach);
-  rb = update_reach(actions, strategy, reach);
+  float2 rp = update_reach(actions, (1 - strategy), reach);
+  float2 rb = update_reach(actions, strategy, reach);
 
   float ev_pass = cfr(c0, c1, actp, rp);
   float ev_bet = cfr(c0, c1, actb, rb);
   float ev = ev_node(strategy, ev_pass, ev_bet);
 
-  // Opponents reach prob
   int player = get_player(actions);
   update_regret(node, ev, reach[!player], ev_pass, ev_bet, player);
-  // players reach prob
   update_strategy_sum(node, strategy, reach[player]);
   return ev;
 }
 
 void print_strategies() {
-  // 8-9 continue
-  for (int action = 1; action < 12; action++) {
-    // These are missing histories
-    if (action == 8 || action == 9) {
+  for (int action = 1; action < 6; action++) {
+    if (action == 4)
       continue;
-    }
 
     for (int card = 0; card < 3; card++) {
       Node node = get_node(card, card, action);
-      float strategy = get_strategy(node);
-      std::cout << "A:" << action << " C:" << card
-                << " S:" << std::to_string(strategy) << "\n";
+      float strategy =
+          node.strategy_sum[1] / (node.strategy_sum[1] + node.strategy_sum[0]);
+
+      std::cout << "A:" << action << " C:" << card << " S:" << strategy << "\n";
     }
   }
 }
 
 int main() {
-  for (int i = 0; i < 10000; i++) {
+  for (int i = 1; i <= 1000; i++) {
+    if ((i % 100) == 0) {
+      std::cout << "iteration: " << i << "------------------------\n";
+      print_strategies();
+    }
     for (int c0 = 0; c0 < 3; c0++) {
       for (int c1 = 0; c1 < 3; c1++) {
-        if ((i % 10000) == 0) {
-          std::cout << "iteration: " << i << "\n";
-          print_strategies();
-        }
         if (c0 == c1) {
           continue;
         }
