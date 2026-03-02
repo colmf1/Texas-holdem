@@ -15,8 +15,14 @@ struct Gamestate {
   uint32_t history;
 };
 
+struct infostate {
+  int hand[2];
+
+}
+
 // Human io
-std::string card_str(int card) {
+std::string
+card_str(int card) {
   // I should just return a string?
   std::array<std::string, 4> suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
   std::array<std::string, 13> ranks = {"2",     "3",    "4",  "5",  "6",
