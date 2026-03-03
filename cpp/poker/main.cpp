@@ -4,22 +4,25 @@
 #include <random>
 #include <string>
 
-// This could all live elsewhere really
 struct Gamestate {
   int hand[2][2];
   int table[5];
   int round;
   int chips[2];
   int bet[2];
-  // id didnt even get used lol theres no point tracking it
-  // just store it as an index, and move player around
-  // player references the index of the lists, as does bb
   bool player;
   bool bb;
-  uint32_t history; // deal with this later
+  uint32_t history;
 };
+
+struct infostate {
+  int hand[2];
+
+}
+
 // Human io
-std::string card_str(int card) {
+std::string
+card_str(int card) {
   // I should just return a string?
   std::array<std::string, 4> suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
   std::array<std::string, 13> ranks = {"2",     "3",    "4",  "5",  "6",
@@ -63,7 +66,6 @@ void show_options(Gamestate &game, bool allin = 0) {
 }
 
 int get_input() {
-  // not passing limits because that will be done elsewhere
   int x;
   std::cin >> x;
   return x;
@@ -106,7 +108,7 @@ void init_gs(Gamestate &game) {
   game.chips[1] = 5000;
 }
 
-void bresets(Gamestate &game) {
+void reset_bets(Gamestate &game) {
   // reset bet
   game.bet[0] = 0;
   game.bet[1] = 0;
@@ -114,7 +116,7 @@ void bresets(Gamestate &game) {
 
 bool fold(Gamestate &game) {
   game.chips[!game.player] += game.bet[0] + game.bet[1];
-  bresets(game);
+  reset_bets(game);
   return false;
 }
 
