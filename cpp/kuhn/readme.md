@@ -45,12 +45,18 @@
 - Strategy at any given point is nonsense, strategy sum converges to nash equilibrium
 
 ## Output 
+<<<<<<< Updated upstream
 - I'm an idiot, the bot would have beat me after 20 iterations 
 - Table below shows Bet probability on root directory
 - Queen-bet converges to 0
 - if king, bet, they call, lose2
 - if jack, bet, they fold, win1, would've won1 with pass pass 
 - jack-bet is non zero because you can bluff a queen into folding
+=======
+- Table below shows Bet probability on root directory
+- Root Queen never bets, because bet has higher downside and same upside 
+- Root Jack bets 20%, despite being lower rated, due to chance of bluffing a queen
+>>>>>>> Stashed changes
 
 | ITER | JACK | QUEEN | KING |
 |------|------|-------|------|
