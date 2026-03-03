@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <iomanip>
 #include <iostream>
 
 using float2 = std::array<float, 2>;
@@ -59,6 +60,7 @@ void update_strategy_sum(Node &node, float strategy, float reach_prob) {
 
 void update_regret(Node &node, float ev, float reach_prob, float ev_pass,
                    float ev_bet, int player) {
+
   int sign = flip_sign(player);
   node.regret[0] += reach_prob * sign * (ev_pass - ev);
   node.regret[1] += reach_prob * sign * (ev_bet - ev);
@@ -102,27 +104,36 @@ float cfr(int c0, int c1, int actions, float2 reach) {
   return ev;
 }
 
-void print_strategies() {
-  for (int action = 1; action < 6; action++) {
-    if (action == 4)
-      continue;
-
-    for (int card = 0; card < 3; card++) {
-      Node node = get_node(card, card, action);
-      float strategy =
-          node.strategy_sum[1] / (node.strategy_sum[1] + node.strategy_sum[0]);
-
-      std::cout << "A:" << action << " C:" << card << " S:" << strategy << "\n";
-    }
+std::string state_string(int actions, int card) {
+  std::string res;
+  while (actions > 1) {
+    // Mask the last bit, if it's 1, bet, otherwise pass
+    // then strip actions of it's last bit.
+    res += (actions & 1) ? "b" : "p";
+    actions >>= 1;
   }
+  res += ":" + std::string(1, "JQK"[card]);
+  return res;
+}
+
+void print_strategies() {
+  for (int card = 0; card < 3; card++) {
+    Node node = get_node(card, card, 1);
+    float strategy =
+        node.strategy_sum[1] / (node.strategy_sum[1] + node.strategy_sum[0]);
+    std::cout << std::fixed << std::setprecision(2) << strategy << " | ";
+  }
+  std::cout << '\n';
 }
 
 int main() {
-  for (int i = 1; i <= 1000; i++) {
-    if ((i % 100) == 0) {
-      std::cout << "iteration: " << i << "------------------------\n";
+  std::cout << "| ITER | JACK | QU3N | KING |" << "\n";
+  for (int i = 0; i <= 500; i++) {
+    if (i != 0 and i % 20 == 0) {
+      std::cout << "|" << std::setw(6) << i << "| ";
       print_strategies();
     }
+
     for (int c0 = 0; c0 < 3; c0++) {
       for (int c1 = 0; c1 < 3; c1++) {
         if (c0 == c1) {
