@@ -27,36 +27,24 @@
 - 110000 + 000011 = 43 max index
 
 ## Counterfactual regret minimisation
-- At the root node, to act wisely we need the EV of our actions 
-- CFR function returns expected value of a node
-- If the node is terminal, i.e. pp, it will be a number
-- Otherwise we recursivly call the function on it's subnodes till we get some answers 
-
-### Algorithm 
-- Node contains
-    - Cumulative Regret {0,0}
-    - Strategy Sum {0,0}
-- Reach probability[0,1] - Given [my,opp] decisions, what's the probability we got here 
-- I didn't think reach probabilities were needed, but then I took them out and it didn't work
-- Regret - How much did I lose out by playing my strategy over this action always 
-    - Regret[Action] += (EV[Action] - EV[Strategy]) * reach[opp]
-- Current strategy = Regret[Action]/total_positive_regret 
-- Strategysum[action] += current strategy 
-- Strategy at any given point is nonsense, strategy sum converges to nash equilibrium
+- We loop through cards for both players, and calculate cfr for the root node
+- CFR calculates EV = pbet*evbet + ppass*evpass
+- If ev is unknown, cfr is called recursivly on both
+- If the node is terminal we can return ev up the ladder
+- At each decision node we track cumulative strategy and regret for both actions
+- At any given point 
+    - curr_strategy = regret[bet]/cum_regret[bet+pass]
+    - curr_regret[action] = ev[action] - ev[curr_strategy]
+- We use this to calculate regret of this action
+- Before updating cumulative strategy+regret, we weight by reach probability
+- Strategy: weight by our own actions 
+- Regret: weight by opponents actions 
 
 ## Output 
-<<<<<<< Updated upstream
-- I'm an idiot, the bot would have beat me after 20 iterations 
-- Table below shows Bet probability on root directory
-- Queen-bet converges to 0
-- if king, bet, they call, lose2
-- if jack, bet, they fold, win1, would've won1 with pass pass 
-- jack-bet is non zero because you can bluff a queen into folding
-=======
-- Table below shows Bet probability on root directory
+
+Table below shows Bet probability on root directory
 - Root Queen never bets, because bet has higher downside and same upside 
 - Root Jack bets 20%, despite being lower rated, due to chance of bluffing a queen
->>>>>>> Stashed changes
 
 | ITER | JACK | QUEEN | KING |
 |------|------|-------|------|
