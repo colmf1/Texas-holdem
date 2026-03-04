@@ -27,55 +27,49 @@
 - 110000 + 000011 = 43 max index
 
 ## Counterfactual regret minimisation
-- At the root node, to act wisely we need the EV of our actions 
-- CFR function returns expected value of a node
-- If the node is terminal, i.e. pp, it will be a number
-- Otherwise we recursivly call the function on it's subnodes till we get some answers 
-
-### Algorithm 
-- Node contains
-    - Cumulative Regret {0,0}
-    - Strategy Sum {0,0}
-- Reach probability[0,1] - Given [my,opp] decisions, what's the probability we got here 
-- I didn't think reach probabilities were needed, but then I took them out and it didn't work
-- Regret - How much did I lose out by playing my strategy over this action always 
-    - Regret[Action] += (EV[Action] - EV[Strategy]) * reach[opp]
-- Current strategy = Regret[Action]/total_positive_regret 
-- Strategysum[action] += current strategy 
-- Strategy at any given point is nonsense, strategy sum converges to nash equilibrium
+- We loop through cards for both players, and calculate cfr for the root node
+- CFR calculates EV = pbet*evbet + ppass*evpass
+- If ev is unknown, cfr is called recursivly on both
+- If the node is terminal we can return ev up the ladder
+- At each decision node we track cumulative strategy and regret for both actions
+- At any given point 
+    - curr_strategy = regret[bet]/cum_regret[bet+pass]
+    - curr_regret[action] = ev[action] - ev[curr_strategy]
+- We use this to calculate regret of this action
+- Before updating cumulative strategy+regret, we weight by reach probability
+- Strategy: weight by our own actions 
+- Regret: weight by opponents actions 
 
 ## Output 
-- I'm an idiot, the bot would have beat me after 20 iterations 
-- Table below shows Bet probability on root directory
-- Queen-bet converges to 0
-- if king, bet, they call, lose2
-- if jack, bet, they fold, win1, would've won1 with pass pass 
-- jack-bet is non zero because you can bluff a queen into folding
 
-| ITER | JACK | QU3N | KING |
-|    20| 0.10 | 0.06 | 0.83 | 
-|    40| 0.24 | 0.03 | 0.67 | 
-|    60| 0.16 | 0.02 | 0.75 | 
-|    80| 0.26 | 0.01 | 0.59 | 
-|   100| 0.21 | 0.01 | 0.67 | 
-|   120| 0.18 | 0.01 | 0.72 | 
-|   140| 0.25 | 0.01 | 0.63 | 
-|   160| 0.24 | 0.01 | 0.64 | 
-|   180| 0.21 | 0.01 | 0.68 | 
-|   200| 0.19 | 0.01 | 0.71 | 
-|   220| 0.20 | 0.01 | 0.68 | 
-|   240| 0.24 | 0.00 | 0.62 | 
-|   260| 0.23 | 0.00 | 0.64 | 
-|   280| 0.22 | 0.00 | 0.67 | 
-|   300| 0.20 | 0.00 | 0.69 | 
-|   320| 0.20 | 0.00 | 0.69 | 
-|   340| 0.23 | 0.00 | 0.65 | 
-|   360| 0.24 | 0.00 | 0.63 | 
-|   380| 0.22 | 0.00 | 0.65 | 
-|   400| 0.21 | 0.00 | 0.67 | 
-|   420| 0.20 | 0.00 | 0.68 | 
-|   440| 0.20 | 0.00 | 0.69 | 
-|   460| 0.21 | 0.00 | 0.67 | 
-|   480| 0.23 | 0.00 | 0.64 | 
-|   500| 0.24 | 0.00 | 0.64 | 
+Table below shows Bet probability on root directory
+- Root Queen never bets, because bet has higher downside and same upside 
+- Root Jack bets 20%, despite being lower rated, due to chance of bluffing a queen
 
+| ITER | JACK | QUEEN | KING |
+|------|------|-------|------|
+| 20 | 0.10 | 0.06 | 0.83 |
+| 40 | 0.24 | 0.03 | 0.67 |
+| 60 | 0.16 | 0.02 | 0.75 |
+| 80 | 0.26 | 0.01 | 0.59 |
+| 100 | 0.21 | 0.01 | 0.67 |
+| 120 | 0.18 | 0.01 | 0.72 |
+| 140 | 0.25 | 0.01 | 0.63 |
+| 160 | 0.24 | 0.01 | 0.64 |
+| 180 | 0.21 | 0.01 | 0.68 |
+| 200 | 0.19 | 0.01 | 0.71 |
+| 220 | 0.20 | 0.01 | 0.68 |
+| 240 | 0.24 | 0.00 | 0.62 |
+| 260 | 0.23 | 0.00 | 0.64 |
+| 280 | 0.22 | 0.00 | 0.67 |
+| 300 | 0.20 | 0.00 | 0.69 |
+| 320 | 0.20 | 0.00 | 0.69 |
+| 340 | 0.23 | 0.00 | 0.65 |
+| 360 | 0.24 | 0.00 | 0.63 |
+| 380 | 0.22 | 0.00 | 0.65 |
+| 400 | 0.21 | 0.00 | 0.67 |
+| 420 | 0.20 | 0.00 | 0.68 |
+| 440 | 0.20 | 0.00 | 0.69 |
+| 460 | 0.21 | 0.00 | 0.67 |
+| 480 | 0.23 | 0.00 | 0.64 |
+| 500 | 0.24 | 0.00 | 0.64 |

@@ -1,26 +1,8 @@
-
 #include <algorithm>
 #include <array>
+#include <iostream>
 #include <random>
-
-// I needa set things up for cfr
-// What do I track, how do I track it
-// card is a number between 0-52
-// suit=card/12, rank=card/4
-//
-
-//
-// std::string card_str(int card) {
-//   std::array<std::string, 4> suits = {"Spades", "Clubs", "Hearts",
-//   "Diamonds"}; std::array<std::string, 13> ranks = {"2",     "3",    "4",
-//   "5",  "6",
-//                                        "7",     "8",    "9",  "10", "Jack",
-//                                        "Queen", "King", "Ace"};
-//   return ranks[card / 4] + " of " + suits[card / 12];
-// }
-//
-
-// bb doesn't matter any more for this, this is cfr, we're traversing trees
+#include <string>
 
 struct Gamestate {
   int hand[2][2];
@@ -32,16 +14,12 @@ struct Gamestate {
   bool bb;
   uint32_t history;
 };
-<<<<<<< Updated upstream:cpp/poker/main.cpp
 
 struct infostate {
   int hand[2];
 
 }
 
-=======
-<<<<<<< Updated upstream:cpluspoker/main.cpp
->>>>>>> Stashed changes:cpluspoker/main.cpp
 // Human io
 std::string
 card_str(int card) {
@@ -92,24 +70,6 @@ int get_input() {
   std::cin >> x;
   return x;
 }
-=======
-
-// Infostate
-// Hand
-// table
-// history
-// round
-// chips
-// pot
-
-// All of this is way too much info
-// we need to group things
-// i.e. hand strength
-// info on table cards, like flush/straight possible, high card table,
-// if i hold highest card on table that's good
-// call amt?
-//
->>>>>>> Stashed changes:cpp/poker/main.cpp
 
 // Cards
 std::array<int, 52> create_deck() {
@@ -140,15 +100,15 @@ void deal_cards(Gamestate &game, std::array<int, 52> &deck) {
   game.table[4] = deck[8];
 }
 
-int suit(int card) { return card / 12; }
-int rank(int card) { return card / 4; }
+// Gamestate
+void init_gs(Gamestate &game) {
+  game.round = 0;
+  game.player = 0;
+  game.chips[0] = 5000;
+  game.chips[1] = 5000;
+}
 
-<<<<<<< Updated upstream:cpp/poker/main.cpp
 void reset_bets(Gamestate &game) {
-=======
-<<<<<<< Updated upstream:cpluspoker/main.cpp
-void bresets(Gamestate &game) {
->>>>>>> Stashed changes:cpluspoker/main.cpp
   // reset bet
   game.bet[0] = 0;
   game.bet[1] = 0;
@@ -313,6 +273,3 @@ int main() {
   }
   return 0;
 }
-=======
-int main() { return 0; }
->>>>>>> Stashed changes:cpp/poker/main.cpp
