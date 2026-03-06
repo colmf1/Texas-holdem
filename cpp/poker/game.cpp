@@ -15,13 +15,7 @@ struct Gamestate {
   uint32_t history;
 };
 
-struct infostate {
-  int hand[2];
-};
-
-// Human io
 std::string card_str(int card) {
-  // I should just return a string?
   std::array<std::string, 4> suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
   std::array<std::string, 13> ranks = {"2",     "3",    "4",  "5",  "6",
                                        "7",     "8",    "9",  "10", "Jack",
@@ -158,43 +152,6 @@ bool allin(Gamestate &game) {
     return call(game);
   }
 }
-
-// Need hand detector funcs
-// Need ranking of hands
-// Need draw handling
-// loser forced to fold
-
-//
-// def eval_flush(self,all_cards):
-//     suits = [card.show()[-1] for card in all_cards]
-//     values = [card.show()[:-1] for card in all_cards]
-//     value_map = {'A': 14, 'K': 13, 'Q': 12, 'J': 11}
-//     numeric_values = list(map(int, [value_map.get(v, v) for v in values]))
-//     lookup = {numeric_values[i]: suits[i] for i in range(len(suits))}
-//     suit_counts = Counter(suits)
-//     if max(suit_counts.values()) >= 5:
-//         flush_suit = [key for key, value in suit_counts.items() if value >=
-//         5][0] cards = [card for card, suit in lookup.items() if suit ==
-//         flush_suit] high_card = max(cards) card_str = next(k for k, v in
-//         value_map.items() if v == high_card) if high_card in
-//         value_map.values() else str(high_card) return cards, card_str
-//     else:
-//         return False
-//
-//
-//
-
-std::array<int, 2> hand_eval(Gamestate &game) {
-  std::array<int, 2> scores;
-  // Return two scores
-  // If they're equal do further comparison.
-  // First it goes highest rank of card within the winning combo
-  // Then highest other card
-  // I think this is the same for all hands so handle separately
-  return scores;
-}
-
-int high_card(Gamestate &game) { return 0; }
 
 bool play_round(Gamestate &game) {
   // Full game control in here

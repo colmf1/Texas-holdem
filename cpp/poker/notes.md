@@ -25,5 +25,20 @@ If we stack in rows, aces are down left
 This is an quick+easy way to check hands 
 Just gotta do it 
 
+Hand eval is looking good 
+Currently returning no pairs, toak, foak, nostraight, no flush
+These can be used for both bucketing and hand eval 
+my code is a mess and getting compiler warnings but it compiles and runs 
 
-I'll get to bucketing later, I feel like I need a handeval before I can bucket sensibly anyway
+
+- Next steps 
+    - Add high card to the mix 
+    - I want high card within flush straight pairs etc 
+    - I want the highest card not on the table specifically
+    - Tiebreakers are never decided by table cards
+    - Of the players hands, I need to identify the value card
+    - It's compared in a tiebreak
+    - Actually ace high f<
+
+
+
