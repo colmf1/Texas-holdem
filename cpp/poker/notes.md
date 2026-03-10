@@ -83,7 +83,7 @@ void count_straight(uint64_t hand, std::array<int, 5> &evals) {
 
 ```
 
-index → binary → consecutive from bit 0 → LUT value
+index → binary → consecutive from bit 0 → lookup value
 0   →  0000  → none                   → 0
 1   →  0001  → 2                      → 1
 2   →  0010  → no 2, chain broken     → 0
@@ -102,6 +102,12 @@ index → binary → consecutive from bit 0 → LUT value
 15  →  1111  → 2,3,4,5                → 4
 
 - Next steps 
+    - Hand eval - fix header files, hidden funcs under namespaces
+    - I can group toak and foak together definitely
+    - I'll need to figure out a way around branching 
+    - But instead of 1,0 toakfoak, I count num_matches, 2-4
+    - If num_matches>2 don't include it with num_pairs
+    - num_matches-2? toak=1,foak=2? 
     - Add high card to the mix 
     - I want high card within flush straight pairs etc 
     - I want the highest card not on the table specifically

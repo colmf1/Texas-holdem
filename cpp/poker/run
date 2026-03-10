@@ -1,6 +1,15 @@
 #!/bin/bash
+set -e
+g++ -std=c++20 -Wall -Wextra -g main.cpp hand_eval.cpp -o texas_holdem
 
-set -e  
-g++ -std=c++20 -Wall -Wextra -O2 main.cpp -o texas_holdem 
+set +e
 ./texas_holdem
+EXIT_CODE=$?
+set -e
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "--- crash detected, running gdb ---"
+    gdb -batch -ex run -ex backtrace ./texas_holdem
+fi
+
 rm -f texas_holdem
