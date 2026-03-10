@@ -37,6 +37,7 @@ void deal_cards(Gamestate &game, std::array<int, 52> deck) {
   game.table[3] = deck[7];
   game.table[4] = deck[8];
 }
+
 static const char *ranks[] = {"2", "3",  "4", "5", "6", "7", "8",
                               "9", "10", "J", "Q", "K", "A"};
 
@@ -66,12 +67,11 @@ int main() {
 
   std::cout << "Table:\n";
   print_hand(table);
-  std::array<int, 5> res = eval_hand(cards);
+  std::array<int, 4> res = eval_hand(cards);
 
   std::cout << "No Pairs:" << res[0] << "\n";
-  std::cout << "No toak:" << res[1] << "\n";
-  std::cout << "No foak:" << res[2] << "\n";
-  std::cout << "No straight:" << res[3] << "\n";
-  std::cout << "No flush:" << res[4] << "\n";
+  std::cout << "TOAK1/FOAK2:" << res[1] << "\n";
+  std::cout << "No straight:" << res[2] << "\n";
+  std::cout << "No flush:" << res[3] << "\n";
   return 0;
 }

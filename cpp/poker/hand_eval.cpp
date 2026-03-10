@@ -31,17 +31,18 @@ uint64_t rank_mask(int rank) {
          (SWITCH << (rank + 39));
 }
 
-void count_matches(uint64_t hand, std::array<int, 5> &evals) {
+void count_matches(uint64_t hand, std::array<int, 4> &evals) {
   for (int rank = 0; rank < 13; rank++) {
     uint64_t mask = rank_mask(rank);
     int num_matches = __builtin_popcountll(hand & mask);
-    if (num_matches > 1) {
-      evals[num_matches - 2] += 1;
-    }
+    // num pairs
+    evals[0] += (num_matches == 2);
+    // 1=toak, 2=foak
+    evals[1] |= (num_matches > 2) * (num_matches - 2);
   }
 }
 
-void count_straight(uint64_t hand, std::array<int, 5> &evals) {
+void count_straight(uint64_t hand, std::array<int, 4> &evals) {
   uint16_t ranks = ((hand)&MASK13) | ((hand >> 13) & MASK13) |
                    ((hand >> 26) & MASK13) | ((hand >> 39) & MASK13);
 
@@ -53,18 +54,18 @@ void count_straight(uint64_t hand, std::array<int, 5> &evals) {
   int low = WHEEL_LOOKUP[ranks & 0xF];
   int wheel = (ranks >> 12 & 1) && low ? low + 1 : 0;
 
-  evals[3] = std::max(1 + !!r2 + !!r3 + !!r4 + !!r5, wheel);
+  evals[2] = std::max(1 + !!r2 + !!r3 + !!r4 + !!r5, wheel);
 }
 
-void count_flush(uint64_t hand, std::array<int, 5> &evals) {
+void count_flush(uint64_t hand, std::array<int, 4> &evals) {
   int max_suit = 0;
-  for (int suit = 0; suit < 3; suit++) {
+  for (int suit = 0; suit < 4; suit++) {
     int count = __builtin_popcountll(hand & suit_masks[suit]);
     if (count > max_suit) {
       max_suit = count;
     }
   }
-  evals[4] = max_suit;
+  evals[3] = max_suit;
 }
 
 } // namespace
@@ -77,8 +78,8 @@ uint64_t bitboard(int *cards, int n) {
   return res;
 }
 
-std::array<int, 5> eval_hand(uint64_t hand) {
-  std::array<int, 5> evals = {0, 0, 0, 0, 0};
+std::array<int, 4> eval_hand(uint64_t hand) {
+  std::array<int, 4> evals = {0, 0, 0, 0};
   count_matches(hand, evals);
   count_straight(hand, evals);
   count_flush(hand, evals);
